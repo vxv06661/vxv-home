@@ -1,30 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VXV.WORLD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: black;
-            color: white;
-            height: 100vh;
+        body, html {
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: sans-serif;
-            text-align: center;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000000;
+            font-family: 'Montserrat', sans-serif;
         }
+
+        /* 星空背景层 */
+        #universe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* 在文字下面 */
+        }
+
+        /* 文字容器 */
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2; /* 在星空上面 */
+            width: 80%;
+            text-align: center;
+            mix-blend-mode: exclusion; /* 这一点点魔法让文字和星星融合 */
+        }
+
         h1 {
-            font-weight: 300;
-            letter-spacing: 2px;
+            color: #ffffff;
+            font-weight: 200; /* 极细，极高级 */
+            font-size: clamp(18px, 4vw, 32px); /* 响应式字体，手机电脑都好看 */
+            letter-spacing: 0.3em; /* 巨大的字间距，营造史诗感 */
+            line-height: 1.8;
             text-transform: uppercase;
-            font-size: 20px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); /* 淡淡的圣光 */
+            opacity: 0;
+            animation: reveal 4s cubic-bezier(0.2, 1, 0.3, 1) forwards; /* 电影般的缓慢浮现 */
+        }
+
+        /* 浮现动画 */
+        @keyframes reveal {
+            0% { opacity: 0; letter-spacing: 1em; filter: blur(10px); }
+            100% { opacity: 1; letter-spacing: 0.3em; filter: blur(0); }
         }
     </style>
 </head>
 <body>
-    <h1>BE THE CHANGE YOU WANT TO SEE IN THE WORLD</h1>
+
+    <canvas id="universe"></canvas>
+
+    <div class="content">
+        <h1>Be the change you want to see in the world</h1>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('universe');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars = [];
+
+        // 初始化画布大小
+        function init() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            createStars();
+        }
+
+        // 创建星星
+        function createStars() {
+            stars = [];
+            const count = width > 768 ? 400 : 150; // 电脑端400颗，手机端150颗
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.5,
+                    vx: (Math.random() - 0.5) * 0.2, // 水平漂浮速度
+                    vy: (Math.random() - 0.5) * 0.2, // 垂直漂浮速度
+                    alpha: Math.random()
+                });
+            }
+        }
+
+        // 绘制每一帧
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.fill();
+
+                // 移动星星
+                star.x += star.vx;
+                star.y += star.vy;
+
+                // 闪烁效果
+                star.alpha += (Math.random() - 0.5) * 0.05;
+                if (star.alpha < 0) star.alpha = 0;
+                if (star.alpha > 1) star.alpha = 1;
+
+                // 边界循环（星星跑出屏幕后从另一边回来）
+                if (star.x < 0) star.x = width;
+                if (star.x > width) star.x = 0;
+                if (star.y < 0) star.y = height;
+                if (star.y > height) star.y = 0;
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', init);
+
+        // 启动！
+        init();
+        draw();
+    </script>
 </body>
 </html>
+
